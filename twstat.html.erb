@@ -1,0 +1,50 @@
+<html>
+
+<head>
+  <title>Twitter Charts</title>
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
+
+      function drawCharts() {
+        draw_by_month(
+          [ <%= by_month_data %> ], 
+          new Date(<%= by_month_min %>), 
+          new Date(<%= by_month_max %>)
+        );
+      }
+
+      function draw_by_month(month_data, month_min, month_max) {
+          // Create and populate the data table.
+
+          var data = new google.visualization.DataTable();
+          data.addColumn('date', 'Month');
+          data.addColumn('number', 'Count');
+          data.addRows(month_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById('by_month')).draw(data,
+              {
+                  title : "Tweets by Month",
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      gridlines:{ color: 'transparent'},
+                      title: "Month", viewWindowMode: 'explicit', viewWindow: {
+                          max: month_max, min: month_min
+                      }
+                  }
+              }
+          );
+      }
+  </script>
+</head>
+
+<body>
+  <div id="by_month"></div>
+</bodyr
+
+</html>
+

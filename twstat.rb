@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
 require 'csv'
+require 'erb'
+require 'date'
 require 'time'
 
 class TweetStats
@@ -65,9 +67,9 @@ class TweetStats
       }
     end
 
-    mon_str = "%04d-%02d" % [ tstamp.year, tstamp.mon ]
-    @count_by_month[mon_str] ||= 0
-    @count_by_month[mon_str] += 1
+    mon_key = [ "%04d-%02d" % [ tstamp.year, tstamp.mon ], tstamp.year, tstamp.mon ]
+    @count_by_month[mon_key] ||= 0
+    @count_by_month[mon_key] += 1
 
     mentions = tweet_str.scan(MENTION_REGEX).map { |match| match[0].downcase }
     source = source_str.gsub(STRIP_A_TAG, '\1')
@@ -113,8 +115,8 @@ class TweetStats
   def report
 
     report_title "Tweets by Month"
-    @count_by_month.keys.sort.each { |mon|
-      puts "#{mon}: #{@count_by_month[mon]}"
+    @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }.each { |mon|
+      puts "#{mon[0]}: #{@count_by_month[mon]}"
     }
 
     COUNT_DEFS.each { |period, periodinfo|
@@ -158,6 +160,22 @@ class TweetStats
       }
     }
   end
+
+  def report_html
+    months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
+    by_month_data = months.map { |mon|
+      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}]"
+    }.join ','
+    first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
+    last_mon = Date.civil(months.last[1], months.last[2], 15)
+    by_month_min = [ first_mon.year, first_mon.mon - 1, first_mon.day ].join ','
+    by_month_max = [ last_mon.year, last_mon.mon - 1, last_mon.day ].join ','
+
+    template = ERB.new File.new('twstat.html.erb').read
+    File.open('twstat.html', 'w') { |f|
+      f.puts template.result binding
+    }
+  end
 end
 
 infile = 'tweets_subset.csv'
@@ -165,6 +183,6 @@ twstat = TweetStats.new
 CSV.foreach(infile) { |row|
   twstat.process_row row
 }
-twstat.report
+twstat.report_html
 
 __END__
