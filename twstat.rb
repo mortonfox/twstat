@@ -171,10 +171,25 @@ class TweetStats
     by_month_min = [ first_mon.year, first_mon.mon - 1, first_mon.day ].join ','
     by_month_max = [ last_mon.year, last_mon.mon - 1, last_mon.day ].join ','
 
+    by_dow_data = {}
+    COUNT_DEFS.each { |period, periodinfo|
+      by_dow_data[period] = 0.upto(6).map { |dow|
+        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}]"
+      }.join ','
+    }
+
+    by_hour_data = {}
+    COUNT_DEFS.each { |period, periodinfo|
+      by_hour_data[period] = 0.upto(23).map { |hour|
+        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}]"
+      }.join ','
+    }
+
     template = ERB.new File.new('twstat.html.erb').read
     File.open('twstat.html', 'w') { |f|
       f.puts template.result binding
     }
+
   end
 end
 

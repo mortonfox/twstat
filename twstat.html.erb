@@ -8,16 +8,37 @@
       google.setOnLoadCallback(drawCharts);
 
       function drawCharts() {
-        draw_by_month(
-          [ <%= by_month_data %> ], 
-          new Date(<%= by_month_min %>), 
-          new Date(<%= by_month_max %>)
-        );
+          draw_by_month(
+              [ <%= by_month_data %> ], 
+              new Date(<%= by_month_min %>), 
+              new Date(<%= by_month_max %>)
+          );
+
+          draw_by_dow(
+              [ <%= by_dow_data[:alltime] %> ],
+              "Tweets by Day of Week (<%= COUNT_DEFS[:alltime][:title] %>)",
+              "by_dow_alltime"
+          );
+          draw_by_dow(
+              [ <%= by_dow_data[:last30] %> ],
+              "Tweets by Day of Week (<%= COUNT_DEFS[:last30][:title] %>)",
+              "by_dow_last30"
+          );
+
+          draw_by_hour(
+              [ <%= by_hour_data[:alltime] %> ],
+              "Tweets by Hour (<%= COUNT_DEFS[:alltime][:title] %>)",
+              "by_hour_alltime"
+          );
+          draw_by_hour(
+              [ <%= by_hour_data[:last30] %> ],
+              "Tweets by Hour (<%= COUNT_DEFS[:last30][:title] %>)",
+              "by_hour_last30"
+          );
       }
 
       function draw_by_month(month_data, month_min, month_max) {
           // Create and populate the data table.
-
           var data = new google.visualization.DataTable();
           data.addColumn('date', 'Month');
           data.addColumn('number', 'Count');
@@ -32,8 +53,55 @@
                   legend: {position: 'none'},
                   hAxis: {
                       gridlines:{ color: 'transparent'},
-                      title: "Month", viewWindowMode: 'explicit', viewWindow: {
+                      title: "Month", 
+                      viewWindowMode: 'explicit', viewWindow: {
                           max: month_max, min: month_min
+                      }
+                  }
+              }
+          );
+      }
+
+      function draw_by_dow(dow_data, chart_title, elemid) {
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'Day of Week');
+          data.addColumn('number', 'Count');
+          data.addRows(dow_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
+              {
+                  title : chart_title,
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      gridlines:{ color: 'transparent'}
+                  }
+              }
+          );
+      }
+
+      function draw_by_hour(hour_data, chart_title, elemid) {
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('number', 'Hour');
+          data.addColumn('number', 'Count');
+          data.addRows(hour_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
+              {
+                  title : chart_title,
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      baselineColor: 'transparent',
+                      gridlines:{ color: 'transparent'},
+                      viewWindowMode: 'explicit', viewWindow: {
+                          max: 23.5, min: -0.5
                       }
                   }
               }
@@ -43,8 +111,30 @@
 </head>
 
 <body>
-  <div id="by_month"></div>
-</bodyr
+  <table>
+    <tr>
+      <td>
+        <div id="by_month"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="by_dow_alltime"></div>
+      </td>
+      <td>
+        <div id="by_dow_last30"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="by_hour_alltime"></div>
+      </td>
+      <td>
+        <div id="by_hour_last30"></div>
+      </td>
+    </tr>
+  </table>
+</body>
 
 </html>
 
