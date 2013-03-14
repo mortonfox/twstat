@@ -185,6 +185,15 @@ class TweetStats
       }.join ','
     }
 
+    by_mention_data = {}
+    COUNT_DEFS.each { |period, periodinfo|
+      by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b| 
+        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a] 
+      }.first(10).map { |user|
+        "[ '@#{user}', #{@all_counts[period][:by_mention][user]} ]"
+      }.join ','
+    }
+
     template = ERB.new File.new('twstat.html.erb').read
     File.open('twstat.html', 'w') { |f|
       f.puts template.result binding
