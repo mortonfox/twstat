@@ -203,7 +203,7 @@ class TweetStats
       }.join ','
     }
 
-    template = ERB.new File.new('twstat.html.erb').read
+    template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
     File.open('twstat.html', 'w') { |f|
       f.puts template.result binding
     }

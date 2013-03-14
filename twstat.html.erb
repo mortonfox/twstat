@@ -4,10 +4,115 @@
   <title>Twitter Charts</title>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
   <script type="text/javascript">
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawCharts);
+      /*jslint white: true, browser: true */
+
+      function draw_by_month(month_data, month_min, month_max) {
+	  "use strict";
+
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('date', 'Month');
+          data.addColumn('number', 'Count');
+          data.addRows(month_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById('by_month')).draw(data,
+              {
+                  title : "Tweets by Month",
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      gridlines:{ color: 'transparent'},
+                      title: "Month", 
+                      viewWindowMode: 'explicit', viewWindow: {
+                          max: month_max, min: month_min
+                      }
+                  }
+              }
+          );
+      }
+
+      function draw_by_dow(dow_data, chart_title, elemid) {
+	  "use strict";
+
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'Day of Week');
+          data.addColumn('number', 'Count');
+          data.addRows(dow_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
+              {
+                  title : chart_title,
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      title: "Day of Week", 
+                      gridlines:{ color: 'transparent'}
+                  }
+              }
+          );
+      }
+
+      function draw_by_hour(hour_data, chart_title, elemid) {
+	  "use strict";
+
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('number', 'Hour');
+          data.addColumn('number', 'Count');
+          data.addRows(hour_data);
+
+          // Create and draw the visualization.
+          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
+              {
+                  title : chart_title,
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      baselineColor: 'transparent',
+                      title: 'Hour',
+                      gridlines:{ color: 'transparent'},
+                      viewWindowMode: 'explicit', viewWindow: {
+                          max: 23.5, min: -0.5
+                      }
+                  }
+              }
+          );
+      }
+
+      function draw_by_mention(mention_data, chart_title, elemid) {
+	  "use strict";
+
+          // Create and populate the data table.
+          var data = new google.visualization.DataTable();
+          data.addColumn('string', 'User');
+          data.addColumn('number', 'Count');
+          data.addRows(mention_data);
+
+          // Create and draw the visualization.
+          new google.visualization.BarChart(document.getElementById(elemid)).draw(data,
+              {
+                  title : chart_title,
+                  width : 600, 
+                  height : 400,
+                  legend: {position: 'none'},
+                  hAxis: {
+                      viewWindowMode: 'explicit', viewWindow: {
+                          min: 0
+                      }
+                  }
+              }
+          );
+      }
 
       function drawCharts() {
+	  "use strict";
+
           draw_by_month(
               [ <%= by_month_data %> ], 
               new Date(<%= by_month_min %>), 
@@ -59,101 +164,8 @@
           );
       }
 
-      function draw_by_month(month_data, month_min, month_max) {
-          // Create and populate the data table.
-          var data = new google.visualization.DataTable();
-          data.addColumn('date', 'Month');
-          data.addColumn('number', 'Count');
-          data.addRows(month_data);
-
-          // Create and draw the visualization.
-          new google.visualization.ColumnChart(document.getElementById('by_month')).draw(data,
-              {
-                  title : "Tweets by Month",
-                  width : 600, 
-                  height : 400,
-                  legend: {position: 'none'},
-                  hAxis: {
-                      gridlines:{ color: 'transparent'},
-                      title: "Month", 
-                      viewWindowMode: 'explicit', viewWindow: {
-                          max: month_max, min: month_min
-                      }
-                  }
-              }
-          );
-      }
-
-      function draw_by_dow(dow_data, chart_title, elemid) {
-          // Create and populate the data table.
-          var data = new google.visualization.DataTable();
-          data.addColumn('string', 'Day of Week');
-          data.addColumn('number', 'Count');
-          data.addRows(dow_data);
-
-          // Create and draw the visualization.
-          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
-              {
-                  title : chart_title,
-                  width : 600, 
-                  height : 400,
-                  legend: {position: 'none'},
-                  hAxis: {
-                      title: "Day of Week", 
-                      gridlines:{ color: 'transparent'}
-                  }
-              }
-          );
-      }
-
-      function draw_by_hour(hour_data, chart_title, elemid) {
-          // Create and populate the data table.
-          var data = new google.visualization.DataTable();
-          data.addColumn('number', 'Hour');
-          data.addColumn('number', 'Count');
-          data.addRows(hour_data);
-
-          // Create and draw the visualization.
-          new google.visualization.ColumnChart(document.getElementById(elemid)).draw(data,
-              {
-                  title : chart_title,
-                  width : 600, 
-                  height : 400,
-                  legend: {position: 'none'},
-                  hAxis: {
-                      baselineColor: 'transparent',
-                      title: 'Hour',
-                      gridlines:{ color: 'transparent'},
-                      viewWindowMode: 'explicit', viewWindow: {
-                          max: 23.5, min: -0.5
-                      }
-                  }
-              }
-          );
-      }
-
-      function draw_by_mention(mention_data, chart_title, elemid) {
-          // Create and populate the data table.
-          var data = new google.visualization.DataTable();
-          data.addColumn('string', 'User');
-          data.addColumn('number', 'Count');
-          data.addRows(mention_data);
-
-          // Create and draw the visualization.
-          new google.visualization.BarChart(document.getElementById(elemid)).draw(data,
-              {
-                  title : chart_title,
-                  width : 600, 
-                  height : 400,
-                  legend: {position: 'none'},
-                  hAxis: {
-                      viewWindowMode: 'explicit', viewWindow: {
-                          min: 0
-                      }
-                  }
-              }
-          );
-      }
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawCharts);
 
   </script>
 </head>
