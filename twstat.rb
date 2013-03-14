@@ -194,6 +194,15 @@ class TweetStats
       }.join ','
     }
 
+    by_source_data = {}
+    COUNT_DEFS.each { |period, periodinfo|
+      by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b| 
+        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a] 
+      }.first(10).map { |source|
+        "[ '#{source}', #{@all_counts[period][:by_source][source]} ]"
+      }.join ','
+    }
+
     template = ERB.new File.new('twstat.html.erb').read
     File.open('twstat.html', 'w') { |f|
       f.puts template.result binding

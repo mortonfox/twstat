@@ -38,13 +38,24 @@
 
           draw_by_mention(
               [ <%= by_mention_data[:alltime] %> ],
-              "Tweets by Mention (<%= COUNT_DEFS[:alltime][:title] %>)",
+              "Top Mentions (<%= COUNT_DEFS[:alltime][:title] %>)",
               "by_mention_alltime"
           );
           draw_by_mention(
               [ <%= by_mention_data[:last30] %> ],
-              "Tweets by Mention (<%= COUNT_DEFS[:last30][:title] %>)",
+              "Top Mentions (<%= COUNT_DEFS[:last30][:title] %>)",
               "by_mention_last30"
+          );
+
+          draw_by_mention(
+              [ <%= by_source_data[:alltime] %> ],
+              "Top Clients (<%= COUNT_DEFS[:alltime][:title] %>)",
+              "by_source_alltime"
+          );
+          draw_by_mention(
+              [ <%= by_source_data[:last30] %> ],
+              "Top Clients (<%= COUNT_DEFS[:last30][:title] %>)",
+              "by_source_last30"
           );
       }
 
@@ -176,6 +187,14 @@
       </td>
       <td>
         <div id="by_mention_last30"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="by_source_alltime"></div>
+      </td>
+      <td>
+        <div id="by_source_last30"></div>
       </td>
     </tr>
   </table>
