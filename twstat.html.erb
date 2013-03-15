@@ -115,7 +115,7 @@
           );
       }
 
-      function cloud_by_words(words_data, chart_title, elemid) {
+      function cloud_by_words(words_data, elemid) {
 	  "use strict";
           $("#" + elemid).jQCloud(words_data);
       }
@@ -178,14 +178,14 @@
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawCharts);
       $(document).ready(function() {
+	  "use strict";
+
           cloud_by_words(
               [ <%= by_words_data[:alltime] %> ],
-              "Words (<%= COUNT_DEFS[:alltime][:title] %>)",
               "by_words_alltime"
           );
           cloud_by_words(
               [ <%= by_words_data[:last30] %> ],
-              "Words (<%= COUNT_DEFS[:last30][:title] %>)",
               "by_words_last30"
           );
       });
