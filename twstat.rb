@@ -203,6 +203,15 @@ class TweetStats
       }.join ','
     }
 
+    by_words_data = {}
+    COUNT_DEFS.each { |period, periodinfo|
+      by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b| 
+        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a] 
+      }.first(100).map { |word|
+        "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
+      }.join ','
+    }
+
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
     File.open('twstat.html', 'w') { |f|
       f.puts template.result binding

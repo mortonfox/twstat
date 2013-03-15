@@ -3,6 +3,11 @@
 <head>
   <title>Twitter Charts</title>
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+
+  <script type="text/javascript" src="jqcloud-1.0.3.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="jqcloud.css" />
+  
   <script type="text/javascript">
       /*jslint white: true, browser: true */
 
@@ -110,6 +115,11 @@
           );
       }
 
+      function cloud_by_words(words_data, chart_title, elemid) {
+	  "use strict";
+          $("#" + elemid).jQCloud(words_data);
+      }
+
       function drawCharts() {
 	  "use strict";
 
@@ -162,11 +172,23 @@
               "Top Clients (<%= COUNT_DEFS[:last30][:title] %>)",
               "by_source_last30"
           );
+
       }
 
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawCharts);
-
+      $(document).ready(function() {
+          cloud_by_words(
+              [ <%= by_words_data[:alltime] %> ],
+              "Words (<%= COUNT_DEFS[:alltime][:title] %>)",
+              "by_words_alltime"
+          );
+          cloud_by_words(
+              [ <%= by_words_data[:last30] %> ],
+              "Words (<%= COUNT_DEFS[:last30][:title] %>)",
+              "by_words_last30"
+          );
+      });
   </script>
 </head>
 
@@ -207,6 +229,16 @@
       </td>
       <td>
         <div id="by_source_last30"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <div id="by_words_alltime" style="width: 600px; height: 400px;"></div>
+        <p style="font-weight: bold; text-align: center;">Words (all time)</p>
+      </td>
+      <td>
+        <div id="by_words_last30" style="width: 600px; height: 400px;"></div>
+        <p style="font-weight: bold; text-align: center;">Words (last 30 days)</p>
       </td>
     </tr>
   </table>
