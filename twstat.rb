@@ -1,9 +1,11 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
 require 'csv'
 require 'erb'
 require 'date'
 require 'time'
+require 'zip/zipfilesystem'
 
 class TweetStats
 
@@ -81,9 +83,14 @@ class TweetStats
     mentions = tweet_str.scan(MENTION_REGEX).map { |match| match[0].downcase }
     source = source_str.gsub(STRIP_A_TAG, '\1')
 
+    # This is for Ruby 1.9 when reading from ZIP file.
+    if tweet_str.respond_to? :force_encoding
+      tweet_str.force_encoding 'utf-8'
+    end
+
     # The gsub() converts Unicode right single quotes to ASCII single quotes.
     # This works in Ruby 1.8 as well.
-    words = tweet_str.downcase.gsub(['2019'.to_i(16)].pack('U*'), "'").split(/[^a-z0-9_']+/).select { |word|
+    words = tweet_str.gsub(['2019'.to_i(16)].pack('U*'), "'").downcase.split(/[^a-z0-9_']+/).select { |word|
       word.size >= 3 and not COMMON_WORDS.include? word
     }
 
@@ -168,7 +175,7 @@ class TweetStats
     }
   end
 
-  def report_html
+  def report_html outfname
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
     by_month_data = months.map { |mon|
       "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}]"
@@ -220,19 +227,59 @@ class TweetStats
     }
 
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
-    File.open('twstat.html', 'w') { |f|
+    File.open(outfname, 'w') { |f|
       f.puts template.result binding
     }
 
   end
 end
 
-infile = 'tweets_subset.csv'
+
+if ARGV.size < 2
+  $stderr.puts <<-EOM
+Parse a Twitter archive and produce a web page with stats charts.
+
+Usage: $0 input-file output-file
+
+input-file:
+    Input file name. This could either be:
+      - The tweets.zip file that you downloaded from Twitter, or 
+      - The CSV file from the root of tweets.zip if you've unpacked it
+        manually.
+
+output-file:
+    This is the name of the HTML file to which to write the result.
+  EOM
+  exit 2
+end
+
+infile, outfile = ARGV
+
 twstat = TweetStats.new
-CSV.foreach(infile) { |row|
-  twstat.process_row row
-}
+
+if infile =~ /\.zip$/i
+  Zip::ZipFile.open(infile) { |zipf|
+    zipf.file.open('tweets.csv', 'r') { |f|
+
+      # CSV module is different in Ruby 1.8.
+      if CSV.const_defined? :Reader
+        CSV::Reader.parse(f) { |row|
+          twstat.process_row row
+        }
+      else
+        CSV.parse(f) { |row|
+          twstat.process_row row
+        }
+      end
+    }
+  }
+else
+  CSV.foreach(infile) { |row|
+    twstat.process_row row
+  }
+end
+
 puts "\nFinished processing."
-twstat.report_html
+twstat.report_html outfile
 
 __END__
