@@ -47,6 +47,8 @@ class TweetStats
     @newest_tstamp = nil
   end
 
+  PROGRESS_INTERVAL = 500
+
   def process_row row
     @row_count += 1
 
@@ -55,6 +57,11 @@ class TweetStats
 
     _, _, _, _, _, tstamp_str, source_str, tweet_str, _ = row
     tstamp = Time.parse tstamp_str
+
+    if @row_count % PROGRESS_INTERVAL == 0
+      print "Processing row #{@row_count} (#{tstamp.strftime '%Y-%m-%d'}) ...\r"
+      $stdout.flush
+    end
 
     # Save the newest timestamp because any last N days stat refers to N
     # days prior to this timestamp, not the current time.
@@ -225,6 +232,7 @@ twstat = TweetStats.new
 CSV.foreach(infile) { |row|
   twstat.process_row row
 }
+puts "\nFinished processing."
 twstat.report_html
 
 __END__
