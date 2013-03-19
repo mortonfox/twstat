@@ -31,6 +31,8 @@ class TweetStats
     http com net org www https 
   }
 
+  attr_reader :row_count
+
   def initialize
     @count_by_month = {}
 
@@ -56,6 +58,9 @@ class TweetStats
 
     # Skip header row.
     return if @row_count <= 1
+
+    # Skip malformed/short rows.
+    return if row.size < 8
 
     _, _, _, _, _, tstamp_str, source_str, tweet_str, _ = row
     tstamp = Time.parse tstamp_str
@@ -257,26 +262,32 @@ infile, outfile = ARGV
 
 twstat = TweetStats.new
 
-if infile =~ /\.zip$/i
-  Zip::ZipFile.open(infile) { |zipf|
-    zipf.file.open('tweets.csv', 'r') { |f|
+begin
+  if infile =~ /\.zip$/i
+    Zip::ZipFile.open(infile) { |zipf|
+      zipf.file.open('tweets.csv', 'r') { |f|
 
-      # CSV module is different in Ruby 1.8.
-      if CSV.const_defined? :Reader
-        CSV::Reader.parse(f) { |row|
-          twstat.process_row row
-        }
-      else
-        CSV.parse(f) { |row|
-          twstat.process_row row
-        }
-      end
+        # CSV module is different in Ruby 1.8.
+        if CSV.const_defined? :Reader
+          CSV::Reader.parse(f) { |row|
+            twstat.process_row row
+          }
+        else
+          CSV.parse(f) { |row|
+            twstat.process_row row
+          }
+        end
+      }
     }
-  }
-else
-  CSV.foreach(infile) { |row|
-    twstat.process_row row
-  }
+  else
+    CSV.foreach(infile) { |row|
+      twstat.process_row row
+    }
+  end
+rescue => err
+  $stderr.puts "Error after reading row #{twstat.row_count}: #{err}"
+  $stderr.puts err.backtrace
+  exit 1
 end
 
 puts "\nFinished processing."
