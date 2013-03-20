@@ -10,7 +10,7 @@ twstat is a Ruby script that generates charts from the data in a Twitter archive
 
 To run twstat, you need to install the following:
 * The rubyzip gem. Run `gem install rubyzip` to add it to your Ruby installation.
-* The jQCloud jQuery plugin. Download it from [https://github.com/lucaong/jQCloud](https://github.com/lucaong/jQCloud)
+* The jQCloud jQuery plugin. Download it from https://github.com/lucaong/jQCloud
 
 The generated web page references the following libraries from online sources:
 * jQuery (from [Google Hosted Libraries](https://developers.google.com/speed/libraries/))
@@ -24,3 +24,8 @@ Run the following command to process your downloaded Twitter archive:
     ruby twstat.rb tweets.zip out.html
        
 Then view out.html in a web browser.
+
+## Sample
+
+You can see a sample charts page here: http://mortonfox.github.com/twstat/twstat-sample.html
+
