@@ -180,10 +180,14 @@ class TweetStats
     }
   end
 
+  def make_tooltip category, count
+    "<div style=\"padding:5px\"><b>#{category}</b><br />#{count} tweets</div>"
+  end
+
   def report_html outfname
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
     by_month_data = months.map { |mon|
-      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}]"
+      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}']"
     }.join ','
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
@@ -193,14 +197,14 @@ class TweetStats
     by_dow_data = {}
     COUNT_DEFS.each { |period, periodinfo|
       by_dow_data[period] = 0.upto(6).map { |dow|
-        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}]"
+        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}']"
       }.join ','
     }
 
     by_hour_data = {}
     COUNT_DEFS.each { |period, periodinfo|
       by_hour_data[period] = 0.upto(23).map { |hour|
-        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}]"
+        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}']"
       }.join ','
     }
 
