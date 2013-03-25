@@ -185,7 +185,7 @@ class TweetStats
   end
 
   def make_tooltip category, count
-    "<div style=\"padding:5px\"><b>#{category}</b><br />#{count} tweets</div>"
+    "<div class=\"tooltip\"><strong>#{category}</strong><br />#{count} tweets</div>"
   end
 
   def report_html outfname
