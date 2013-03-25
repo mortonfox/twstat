@@ -49,6 +49,7 @@ class TweetStats
 
     @row_count = 0
     @newest_tstamp = nil
+    @oldest_tstamp = nil
   end
 
   PROGRESS_INTERVAL = 500
@@ -80,6 +81,9 @@ class TweetStats
         periodinfo[:cutoff] = @newest_tstamp - periodinfo[:days] * 24 * 60 * 60 if periodinfo[:days]
       }
     end
+
+    # This assumes that tweets.csv is ordered from newest to oldest.
+    @oldest_tstamp = tstamp
 
     mon_key = [ "%04d-%02d" % [ tstamp.year, tstamp.mon ], tstamp.year, tstamp.mon ]
     @count_by_month[mon_key] ||= 0
@@ -234,6 +238,8 @@ class TweetStats
         "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
       }.join ','
     }
+
+    subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
 
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
     File.open(outfname, 'w') { |f|
