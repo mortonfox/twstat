@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -29,6 +30,11 @@
 
     .tooltip {
       padding: 5px;
+    }
+
+    #by_words_alltime, #by_words_last30 {
+      width: 600px;
+      height: 400px;
     }
   </style>
   <link rel="stylesheet" type="text/css" href="http://cdnjs.cloudflare.com/ajax/libs/jqcloud/1.0.3/jqcloud.css" />
@@ -279,7 +285,7 @@
           <caption>Words (all time)</caption>
           <tr>
             <td>
-              <div id="by_words_alltime" style="width: 600px; height: 400px;"></div>
+              <div id="by_words_alltime"></div>
             </td>
           </tr>
         </table>
@@ -291,7 +297,7 @@
           <caption>Words (last 30 days)</caption>
           <tr>
             <td>
-              <div id="by_words_last30" style="width: 600px; height: 400px;"></div>
+              <div id="by_words_last30"></div>
             </td>
           </tr>
         </table>
