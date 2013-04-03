@@ -19,6 +19,11 @@
       text-align: center;
     }
 
+    .noscript_text {
+      text-align: center;
+      color: #ff0000;
+    }
+
     table {
       margin-left: auto;
       margin-right: auto;
@@ -240,6 +245,13 @@
 <body>
   <h1>Twitter Archive Stats</h1>
   <h2><%= subtitle %></h2>
+
+  <noscript>
+    <div class="noscript_text">
+      Please enable Javascript. It is needed to display charts and word clouds.
+    </div>
+  </noscript>
+
   <table>
     <tr>
       <td colspan="2">
