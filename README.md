@@ -31,5 +31,5 @@ Then view out.html in a web browser.
 
 ## Sample
 
-You can see a sample charts page here: http://mortonfox.github.com/twstat/twstat-sample.html
+You can see a sample charts page here: http://mortonfox.github.io/twstat/twstat-sample.html
 
