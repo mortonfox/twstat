@@ -63,7 +63,7 @@ class TweetStats
     # Skip malformed/short rows.
     return if row.size < 8
 
-    _, _, _, _, _, tstamp_str, source_str, tweet_str, _ = row
+    _, _, _, tstamp_str, source_str, tweet_str, _, _, _, _ = row
     tstamp = Time.parse tstamp_str
 
     if @row_count % PROGRESS_INTERVAL == 0
@@ -112,9 +112,9 @@ class TweetStats
       @all_counts[period][:by_dow][tstamp.wday] ||= 0
       @all_counts[period][:by_dow][tstamp.wday] += 1
 
-      mentions.each { |user|
-        @all_counts[period][:by_mention][user] ||= 0
-        @all_counts[period][:by_mention][user] += 1
+      mentions.each { |mentioned_user|
+        @all_counts[period][:by_mention][mentioned_user] ||= 0
+        @all_counts[period][:by_mention][mentioned_user] += 1
       }
 
       @all_counts[period][:by_source][source] ||= 0
