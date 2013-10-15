@@ -7,6 +7,7 @@ require 'date'
 require 'time'
 require 'zip/zipfilesystem'
 
+# Process a Twitter Archive file.
 class TweetStats
 
   COUNT_DEFS = {
@@ -18,17 +19,17 @@ class TweetStats
   STRIP_A_TAG = /<a[^>]*>(.*)<\/a>/
 
   COMMON_WORDS = %w{
-    the and you that 
+    the and you that
     was for are with his they
     this have from one had word
     but not what all were when your can said
-    there use each which she how their 
-    will other about out many then them these 
+    there use each which she how their
+    will other about out many then them these
     some her would make like him into time has look
     two more write see number way could people
     than first water been call who oil its now
     find long down day did get come made may part
-    http com net org www https 
+    http com net org www https
   }
 
   attr_reader :row_count
@@ -85,7 +86,7 @@ class TweetStats
     # This assumes that tweets.csv is ordered from newest to oldest.
     @oldest_tstamp = tstamp
 
-    mon_key = [ "%04d-%02d" % [ tstamp.year, tstamp.mon ], tstamp.year, tstamp.mon ]
+    mon_key = [sprintf('%04d-%02d', tstamp.year, tstamp.mon), tstamp.year, tstamp.mon]
     @count_by_month[mon_key] ||= 0
     @count_by_month[mon_key] += 1
 
@@ -93,9 +94,7 @@ class TweetStats
     source = source_str.gsub(STRIP_A_TAG, '\1')
 
     # This is for Ruby 1.9 when reading from ZIP file.
-    if tweet_str.respond_to? :force_encoding
-      tweet_str.force_encoding 'utf-8'
-    end
+    tweet_str.force_encoding 'utf-8' if tweet_str.respond_to? :force_encoding
 
     # The gsub() converts Unicode right single quotes to ASCII single quotes.
     # This works in Ruby 1.8 as well.
@@ -137,7 +136,7 @@ class TweetStats
 
   def report
 
-    report_title "Tweets by Month"
+    report_title 'Tweets by Month'
     @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }.each { |mon|
       puts "#{mon[0]}: #{@count_by_month[mon]}"
     }
@@ -158,8 +157,8 @@ class TweetStats
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top mentions (#{periodinfo[:title]})"
-      @all_counts[period][:by_mention].keys.sort { |a, b| 
-        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a] 
+      @all_counts[period][:by_mention].keys.sort { |a, b|
+        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
       }.first(10).each { |user|
         puts "@#{user}: #{@all_counts[period][:by_mention][user]}"
       }
@@ -167,8 +166,8 @@ class TweetStats
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top clients (#{periodinfo[:title]})"
-      @all_counts[period][:by_source].keys.sort { |a, b| 
-        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a] 
+      @all_counts[period][:by_source].keys.sort { |a, b|
+        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
       }.first(10).each { |source|
         puts "#{source}: #{@all_counts[period][:by_source][source]}"
       }
@@ -176,8 +175,8 @@ class TweetStats
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top words (#{periodinfo[:title]})"
-      @all_counts[period][:by_word].keys.sort { |a, b| 
-        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a] 
+      @all_counts[period][:by_word].keys.sort { |a, b|
+        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
       }.first(20).each { |word|
         puts "#{word}: #{@all_counts[period][:by_word][word]}"
       }
@@ -195,8 +194,8 @@ class TweetStats
     }.join ','
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
-    by_month_min = [ first_mon.year, first_mon.mon - 1, first_mon.day ].join ','
-    by_month_max = [ last_mon.year, last_mon.mon - 1, last_mon.day ].join ','
+    by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
+    by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
 
     by_dow_data = {}
     COUNT_DEFS.each { |period, periodinfo|
@@ -214,8 +213,8 @@ class TweetStats
 
     by_mention_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b| 
-        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a] 
+      by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b|
+        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
       }.first(10).map { |user|
         "[ '@#{user}', #{@all_counts[period][:by_mention][user]} ]"
       }.join ','
@@ -223,8 +222,8 @@ class TweetStats
 
     by_source_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b| 
-        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a] 
+      by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b|
+        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
       }.first(10).map { |source|
         "[ '#{source}', #{@all_counts[period][:by_source][source]} ]"
       }.join ','
@@ -232,8 +231,8 @@ class TweetStats
 
     by_words_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b| 
-        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a] 
+      by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b|
+        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
       }.first(100).map { |word|
         "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
       }.join ','
@@ -249,7 +248,6 @@ class TweetStats
   end
 end
 
-
 if ARGV.size < 2
   $stderr.puts <<-EOM
 Parse a Twitter archive and produce a web page with stats charts.
@@ -258,7 +256,7 @@ Usage: $0 input-file output-file
 
 input-file:
     Input file name. This could either be:
-      - The tweets.zip file that you downloaded from Twitter, or 
+      - The tweets.zip file that you downloaded from Twitter, or
       - The CSV file from the root of tweets.zip if you've unpacked it
         manually.
 
