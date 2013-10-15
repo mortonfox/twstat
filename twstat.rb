@@ -6,6 +6,7 @@ require 'erb'
 require 'date'
 require 'time'
 require 'zip/zipfilesystem'
+require 'ostruct'
 
 # Process a Twitter Archive file.
 class TweetStats
@@ -188,61 +189,63 @@ class TweetStats
   end
 
   def report_html outfname
+    erb_data = OpenStruct.new
+
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
-    by_month_data = months.map { |mon|
+    erb_data.by_month_data = months.map { |mon|
       "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}']"
     }.join ','
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
-    by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
-    by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
+    erb_data.by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
+    erb_data.by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
 
-    by_dow_data = {}
+    erb_data.by_dow_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_dow_data[period] = 0.upto(6).map { |dow|
+      erb_data.by_dow_data[period] = 0.upto(6).map { |dow|
         "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}']"
       }.join ','
     }
 
-    by_hour_data = {}
+    erb_data.by_hour_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_hour_data[period] = 0.upto(23).map { |hour|
+      erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
         "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}']"
       }.join ','
     }
 
-    by_mention_data = {}
+    erb_data.by_mention_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b|
+      erb_data.by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b|
         @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
       }.first(10).map { |user|
         "[ '@#{user}', #{@all_counts[period][:by_mention][user]} ]"
       }.join ','
     }
 
-    by_source_data = {}
+    erb_data.by_source_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b|
+      erb_data.by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b|
         @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
       }.first(10).map { |source|
         "[ '#{source}', #{@all_counts[period][:by_source][source]} ]"
       }.join ','
     }
 
-    by_words_data = {}
+    erb_data.by_words_data = {}
     COUNT_DEFS.each { |period, periodinfo|
-      by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b|
+      erb_data.by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b|
         @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
       }.first(100).map { |word|
         "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
       }.join ','
     }
 
-    subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
+    erb_data.subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
 
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
     File.open(outfname, 'w') { |f|
-      f.puts template.result binding
+      f.puts template.result erb_data.instance_eval { binding }
     }
 
   end
