@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+# Process a Twitter archive file and generate a page of stats and charts.
+# Author: Po Shan Cheah http://mortonfox.com
+
+
 require 'rubygems'
 require 'csv'
 require 'erb'
