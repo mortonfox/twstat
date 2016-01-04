@@ -14,8 +14,8 @@ require 'ostruct'
 # Process a Twitter Archive file.
 class TweetStats
   COUNT_DEFS = {
-    :alltime => { :title => 'all time', :days => nil, },
-    :last30 => { :title => 'last 30 days', :days => 30, },
+    alltime: { title: 'all time', days: nil, },
+    last30: { title: 'last 30 days', days: 30, },
   }
 
   MENTION_REGEX = /\B@([A-Za-z0-9_]+)/
@@ -43,11 +43,11 @@ class TweetStats
     @all_counts = {}
     COUNT_DEFS.keys.each { |period|
       @all_counts[period] = {
-        :by_dow => {},
-        :by_hour => {},
-        :by_mention => {},
-        :by_source => {},
-        :by_word => {},
+        by_dow: {},
+        by_hour: {},
+        by_mention: {},
+        by_source: {},
+        by_word: {},
       }
     }
 
@@ -252,7 +252,7 @@ class TweetStats
 end
 
 if ARGV.size < 2
-  $stderr.puts <<-EOM
+  warn <<-EOM
 Parse a Twitter archive and produce a web page with stats charts.
 
 Usage: $0 input-file output-file
@@ -277,16 +277,9 @@ begin
   if infile =~ /\.zip$/i
     Zip::ZipFile.open(infile) { |zipf|
       zipf.file.open('tweets.csv', 'r') { |f|
-        # CSV module is different in Ruby 1.8.
-        if CSV.const_defined? :Reader
-          CSV::Reader.parse(f) { |row|
-            twstat.process_row row
-          }
-        else
-          CSV.parse(f) { |row|
-            twstat.process_row row
-          }
-        end
+        CSV.parse(f) { |row|
+          twstat.process_row row
+        }
       }
     }
   else
@@ -295,8 +288,8 @@ begin
     }
   end
 rescue => err
-  $stderr.puts "Error after reading row #{twstat.row_count}: #{err}"
-  $stderr.puts err.backtrace
+  warn "Error after reading row #{twstat.row_count}: #{err}"
+  warn err.backtrace
   exit 1
 end
 
