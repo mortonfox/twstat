@@ -3,12 +3,11 @@
 # Process a Twitter archive file and generate a page of stats and charts.
 # Author: Po Shan Cheah http://mortonfox.com
 
-require 'rubygems'
 require 'csv'
 require 'erb'
 require 'date'
 require 'time'
-require 'zip/zipfilesystem'
+require 'zip'
 require 'ostruct'
 
 # Process a Twitter Archive file.
@@ -251,11 +250,12 @@ class TweetStats
   end
 end
 
-if ARGV.size < 2
-  warn <<-EOM
+def main
+  progname = File.basename $PROGRAM_NAME
+  usage = <<-EOM
 Parse a Twitter archive and produce a web page with stats charts.
 
-Usage: $0 input-file output-file
+Usage: #{progname} input-file output-file
 
 input-file:
     Input file name. This could either be:
@@ -266,34 +266,40 @@ input-file:
 output-file:
     This is the name of the HTML file to which to write the result.
   EOM
-  exit 2
-end
 
-infile, outfile = ARGV
+  if ARGV.size < 2
+    warn usage
+    exit 2
+  end
 
-twstat = TweetStats.new
+  infile, outfile = ARGV
 
-begin
-  if infile =~ /\.zip$/i
-    Zip::ZipFile.open(infile) { |zipf|
-      zipf.file.open('tweets.csv', 'r') { |f|
-        CSV.parse(f) { |row|
-          twstat.process_row row
+  twstat = TweetStats.new
+
+  begin
+    if infile =~ /\.zip$/i
+      Zip::File.open(infile) { |zipf|
+        zipf.get_input_stream('tweets.csv') { |f|
+          CSV.parse(f) { |row|
+            twstat.process_row row
+          }
         }
       }
-    }
-  else
-    CSV.foreach(infile) { |row|
-      twstat.process_row row
-    }
+    else
+      CSV.foreach(infile) { |row|
+        twstat.process_row row
+      }
+    end
+  rescue => err
+    warn "Error after reading row #{twstat.row_count}: #{err}"
+    warn err.backtrace
+    exit 1
   end
-rescue => err
-  warn "Error after reading row #{twstat.row_count}: #{err}"
-  warn err.backtrace
-  exit 1
+
+  puts "\nFinished processing."
+  twstat.report_html outfile
 end
 
-puts "\nFinished processing."
-twstat.report_html outfile
+main
 
 __END__
