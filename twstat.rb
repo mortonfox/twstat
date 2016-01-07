@@ -57,6 +57,10 @@ class TweetStats
 
   PROGRESS_INTERVAL = 500
 
+  # Archive entries before this point all have 00:00:00 as the time, so don't
+  # include them in the by-hour chart.
+  ZERO_TIME_CUTOFF = Time.new(2010, 11, 4, 21)
+
   def process_row row
     @row_count += 1
 
@@ -76,6 +80,7 @@ class TweetStats
 
     # Save the newest timestamp because any last N days stat refers to N
     # days prior to this timestamp, not the current time.
+    # This assumes that tweets.csv is ordered from newest to oldest.
     unless @newest_tstamp
       @newest_tstamp = tstamp
 
@@ -107,8 +112,12 @@ class TweetStats
     COUNT_DEFS.each { |period, periodinfo|
       next if periodinfo[:cutoff] and tstamp < periodinfo[:cutoff]
 
-      @all_counts[period][:by_hour][tstamp.hour] ||= 0
-      @all_counts[period][:by_hour][tstamp.hour] += 1
+      # Archive entries before this point all have 00:00:00 as the time, so
+      # don't include them in the by-hour chart.
+      if tstamp >= ZERO_TIME_CUTOFF
+        @all_counts[period][:by_hour][tstamp.hour] ||= 0
+        @all_counts[period][:by_hour][tstamp.hour] += 1
+      end
 
       @all_counts[period][:by_dow][tstamp.wday] ||= 0
       @all_counts[period][:by_dow][tstamp.wday] += 1
