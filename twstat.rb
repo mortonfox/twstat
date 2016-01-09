@@ -258,6 +258,21 @@ class TweetStats
   end
 end
 
+# Process a file. This function will handle the detail of whether to process
+# tweets.csv from inside a zip file or the file itself.
+# Accepts a block that will be called once for each CSV row.
+def process_file infile, &blk
+  if infile =~ /\.zip$/i
+    Zip::File.open(infile) { |zipf|
+      zipf.get_input_stream('tweets.csv') { |f|
+        CSV.parse(f, headers: true, &blk)
+      }
+    }
+  else
+    CSV.foreach(infile, headers: true, &blk)
+  end
+end
+
 def main
   progname = File.basename $PROGRAM_NAME
   usage = <<-EOM
@@ -285,19 +300,9 @@ output-file:
   twstat = TweetStats.new
 
   begin
-    if infile =~ /\.zip$/i
-      Zip::File.open(infile) { |zipf|
-        zipf.get_input_stream('tweets.csv') { |f|
-          CSV.parse(f, headers: true) { |row|
-            twstat.process_row row
-          }
-        }
-      }
-    else
-      CSV.foreach(infile, headers: true) { |row|
-        twstat.process_row row
-      }
-    end
+    process_file(infile) { |row|
+      twstat.process_row row
+    }
   rescue => err
     warn "Error after reading row #{twstat.row_count}: #{err}"
     warn err.backtrace
