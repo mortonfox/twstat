@@ -9,7 +9,7 @@ February 2013, it was available to all users.
 
 To request your Twitter archive:
 
-1. Visit https://twitter.com/settings/account
+1. Visit <https://twitter.com/settings/account>
 1. Click on the "Request your archive" button.
 1. Wait for an email from Twitter with a download link.
 
@@ -38,5 +38,5 @@ Then view out.html in a web browser.
 
 ## Sample
 
-You can see a sample charts page here: http://mortonfox.github.io/twstat/twstat-sample.html
+You can see a sample charts page here: <http://mortonfox.github.io/twstat/twstat-sample.html>
 
