@@ -36,6 +36,11 @@ Run the following command to process your downloaded Twitter archive:
 
 Then view out.html in a web browser.
 
+If you have already unzipped your Twitter archive, you may also run twstat
+directly on tweets.csv:
+
+    ruby twstat.rb tweets.csv out.html
+
 ## Sample
 
 You can see a sample charts page here: <http://mortonfox.github.io/twstat/twstat-sample.html>
