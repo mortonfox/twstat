@@ -45,3 +45,5 @@ directly on tweets.csv:
 
 You can see a sample charts page here: <http://mortonfox.github.io/twstat/twstat-sample.html>
 
+Note: The Tweets by Hour chart uses the UTC time zone since that's how Twitter
+stores timestamps in the Twitter archive.
