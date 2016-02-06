@@ -24,7 +24,7 @@ to add it to your Ruby installation.
 
 The generated web page references the following libraries from online sources:
 
-* jQuery (from [Google Hosted Libraries](https://developers.google.com/speed/libraries/))
+* jQuery (from [CDNJS](http://cdnjs.com/))
 * [jQCloud](https://github.com/lucaong/jQCloud) jQuery plugin (from [CDNJS](http://cdnjs.com/))
 * [Google Chart Tools](https://developers.google.com/chart/)
 
