@@ -105,11 +105,11 @@ class TweetStats
     # The gsub() converts Unicode right single quotes to ASCII single quotes.
     # This works in Ruby 1.8 as well.
     words = tweet_str.gsub(['2019'.to_i(16)].pack('U*'), "'").downcase.split(/[^a-z0-9_']+/).select { |word|
-      word.size >= 3 and not COMMON_WORDS.include? word
+      word.size >= 3 && !COMMON_WORDS.include?(word)
     }
 
     COUNT_DEFS.each { |period, periodinfo|
-      next if periodinfo[:cutoff] and tstamp < periodinfo[:cutoff]
+      next if periodinfo[:cutoff] && tstamp < periodinfo[:cutoff]
 
       # Archive entries before this point all have 00:00:00 as the time, so
       # don't include them in the by-hour chart.
