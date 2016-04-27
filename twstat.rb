@@ -34,6 +34,12 @@ class TweetStats
     http com net org www https
   )
 
+  COLORS = %w(
+    #673AB7 #3F51B5 #2196F3
+    #009688 #4CAF50 #FF5722
+    #E91E63
+  )
+
   attr_reader :row_count
 
   def initialize
@@ -200,8 +206,8 @@ class TweetStats
     erb_data = OpenStruct.new
 
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
-    erb_data.by_month_data = months.map { |mon|
-      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}']"
+    erb_data.by_month_data = months.map.with_index { |mon, i|
+      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}', '#{COLORS[i % COLORS.size]}']"
     }.join ','
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
@@ -211,14 +217,14 @@ class TweetStats
     erb_data.by_dow_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_dow_data[period] = 0.upto(6).map { |dow|
-        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}']"
+        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}', '#{COLORS[dow]}']"
       }.join ','
     }
 
     erb_data.by_hour_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
-        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}']"
+        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}', '#{COLORS[hour % COLORS.size]}']"
       }.join ','
     }
 

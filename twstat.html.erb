@@ -55,6 +55,7 @@
           data.addColumn('date', 'Month');
           data.addColumn('number', 'Count');
           data.addColumn({type:'string', role:'tooltip', p: {html: true}});
+          data.addColumn({type:'string', role:'style'});
           data.addRows(month_data);
 
           // Create and draw the visualization.
@@ -90,6 +91,7 @@
           data.addColumn('string', 'Day of Week');
           data.addColumn('number', 'Count');
           data.addColumn({type:'string', role:'tooltip', p: {html: true}});
+          data.addColumn({type:'string', role:'style'});
           data.addRows(dow_data);
 
           // Create and draw the visualization.
@@ -118,6 +120,7 @@
           data.addColumn('number', 'Hour');
           data.addColumn('number', 'Count');
           data.addColumn({type:'string', role:'tooltip', p: {html: true}});
+          data.addColumn({type:'string', role:'style'});
           data.addRows(hour_data);
 
           // Create and draw the visualization.
