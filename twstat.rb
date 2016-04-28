@@ -207,7 +207,7 @@ class TweetStats
 
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
     erb_data.by_month_data = months.map.with_index { |mon, i|
-      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}', '#{COLORS[i % COLORS.size]}']"
+      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}', '#{COLORS[i % 6]}']"
     }.join ','
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
@@ -224,7 +224,7 @@ class TweetStats
     erb_data.by_hour_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
-        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}', '#{COLORS[hour % COLORS.size]}']"
+        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}', '#{COLORS[hour % 6]}']"
       }.join ','
     }
 

@@ -48,7 +48,7 @@
       /*jslint white: true, browser: true */
 
       function draw_by_month(month_data, month_min, month_max) {
-	  "use strict";
+          "use strict";
 
           // Create and populate the data table.
           var data = new google.visualization.DataTable();
@@ -84,7 +84,7 @@
       }
 
       function draw_by_dow(dow_data, chart_title, elemid) {
-	  "use strict";
+          "use strict";
 
           // Create and populate the data table.
           var data = new google.visualization.DataTable();
@@ -113,7 +113,7 @@
       }
 
       function draw_by_hour(hour_data, chart_title, elemid) {
-	  "use strict";
+          "use strict";
 
           // Create and populate the data table.
           var data = new google.visualization.DataTable();
@@ -137,14 +137,15 @@
                       gridlines:{ color: 'transparent'},
                       viewWindowMode: 'explicit', viewWindow: {
                           max: 23.5, min: -0.5
-                      }
+                      },
+                      ticks: [0, 6, 12, 18, 24]
                   }
               }
           );
       }
 
       function draw_by_mention(mention_data, chart_title, elemid) {
-	  "use strict";
+          "use strict";
 
           // Create and populate the data table.
           var data = new google.visualization.DataTable();
@@ -169,12 +170,12 @@
       }
 
       function cloud_by_words(words_data, elemid) {
-	  "use strict";
+          "use strict";
           $("#" + elemid).jQCloud(words_data);
       }
 
       function drawCharts() {
-	  "use strict";
+          "use strict";
 
           draw_by_month(
               [ <%= by_month_data %> ], 
@@ -231,7 +232,7 @@
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawCharts);
       $(document).ready(function() {
-	  "use strict";
+          "use strict";
 
           cloud_by_words(
               [ <%= by_words_data[:alltime] %> ],
@@ -323,4 +324,3 @@
 </body>
 
 </html>
-
