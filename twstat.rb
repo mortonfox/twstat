@@ -232,8 +232,8 @@ class TweetStats
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b|
         @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
-      }.first(10).map { |user|
-        "[ '@#{user}', #{@all_counts[period][:by_mention][user]} ]"
+      }.first(10).map.with_index { |user, i|
+        "[ '@#{user}', #{@all_counts[period][:by_mention][user]}, '#{COLORS[i % COLORS.size]}' ]"
       }.join ','
     }
 
@@ -241,8 +241,8 @@ class TweetStats
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b|
         @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
-      }.first(10).map { |source|
-        "[ '#{source}', #{@all_counts[period][:by_source][source]} ]"
+      }.first(10).map.with_index { |source, i|
+        "[ '#{source}', #{@all_counts[period][:by_source][source]}, '#{COLORS[i % COLORS.size]}' ]"
       }.join ','
     }
 
