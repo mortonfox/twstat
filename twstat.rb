@@ -208,7 +208,7 @@ class TweetStats
     months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
     erb_data.by_month_data = months.map.with_index { |mon, i|
       "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}', '#{COLORS[i % 6]}']"
-    }.join ','
+    }.join ",\n"
     first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
     last_mon = Date.civil(months.last[1], months.last[2], 15)
     erb_data.by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
@@ -218,14 +218,14 @@ class TweetStats
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_dow_data[period] = 0.upto(6).map { |dow|
         "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}', '#{COLORS[dow]}']"
-      }.join ','
+      }.join ",\n"
     }
 
     erb_data.by_hour_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
         "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}', '#{COLORS[hour % 6]}']"
-      }.join ','
+      }.join ",\n"
     }
 
     erb_data.by_mention_data = {}
@@ -234,7 +234,7 @@ class TweetStats
         @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
       }.first(10).map.with_index { |user, i|
         "[ '@#{user}', #{@all_counts[period][:by_mention][user]}, '#{COLORS[i % COLORS.size]}' ]"
-      }.join ','
+      }.join ",\n"
     }
 
     erb_data.by_source_data = {}
@@ -243,7 +243,7 @@ class TweetStats
         @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
       }.first(10).map.with_index { |source, i|
         "[ '#{source}', #{@all_counts[period][:by_source][source]}, '#{COLORS[i % COLORS.size]}' ]"
-      }.join ','
+      }.join ",\n"
     }
 
     erb_data.by_words_data = {}
@@ -252,10 +252,15 @@ class TweetStats
         @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
       }.first(100).map { |word|
         "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
-      }.join ','
+      }.join ",\n"
     }
 
     erb_data.subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
+
+    # Add custom colors to the word clouds.
+    erb_data.extra_css = 0.upto(9).map { |i|
+      ".w#{10 - i} { color: #{COLORS[i % COLORS.size]} !important; }"
+    }.join("\n")
 
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
     File.open(outfname, 'w') { |f|
