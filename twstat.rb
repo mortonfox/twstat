@@ -42,17 +42,22 @@ class TweetStats
 
   attr_reader :row_count
 
+  # Make a hash of counters, i.e. values default to 0 the first time.
+  def counter_hash
+    Hash.new { |h, k| h[k] = 0 }
+  end
+
   def initialize
-    @count_by_month = {}
+    @count_by_month = counter_hash
 
     @all_counts = {}
     COUNT_DEFS.keys.each { |period|
       @all_counts[period] = {
-        by_dow: {},
-        by_hour: {},
-        by_mention: {},
-        by_source: {},
-        by_word: {},
+        by_dow: counter_hash,
+        by_hour: counter_hash,
+        by_mention: counter_hash,
+        by_source: counter_hash,
+        by_word: counter_hash
       }
     }
 
@@ -61,7 +66,7 @@ class TweetStats
     @oldest_tstamp = nil
   end
 
-  PROGRESS_INTERVAL = 500
+  PROGRESS_INTERVAL = 2500
 
   # Archive entries before this point all have 00:00:00 as the time, so don't
   # include them in the by-hour chart.
@@ -99,7 +104,6 @@ class TweetStats
     @oldest_tstamp = tstamp
 
     mon_key = [format('%04d-%02d', tstamp.year, tstamp.mon), tstamp.year, tstamp.mon]
-    @count_by_month[mon_key] ||= 0
     @count_by_month[mon_key] += 1
 
     mentions = tweet_str.scan(MENTION_REGEX).map { |match| match[0].downcase }
@@ -117,27 +121,22 @@ class TweetStats
     COUNT_DEFS.each { |period, periodinfo|
       next if periodinfo[:cutoff] && tstamp < periodinfo[:cutoff]
 
+      period_counts = @all_counts[period]
+
       # Archive entries before this point all have 00:00:00 as the time, so
       # don't include them in the by-hour chart.
-      if tstamp >= ZERO_TIME_CUTOFF
-        @all_counts[period][:by_hour][tstamp.hour] ||= 0
-        @all_counts[period][:by_hour][tstamp.hour] += 1
-      end
+      period_counts[:by_hour][tstamp.hour] += 1 if tstamp >= ZERO_TIME_CUTOFF
 
-      @all_counts[period][:by_dow][tstamp.wday] ||= 0
-      @all_counts[period][:by_dow][tstamp.wday] += 1
+      period_counts[:by_dow][tstamp.wday] += 1
 
       mentions.each { |mentioned_user|
-        @all_counts[period][:by_mention][mentioned_user] ||= 0
-        @all_counts[period][:by_mention][mentioned_user] += 1
+        period_counts[:by_mention][mentioned_user] += 1
       }
 
-      @all_counts[period][:by_source][source] ||= 0
-      @all_counts[period][:by_source][source] += 1
+      period_counts[:by_source][source] += 1
 
       words.each { |word|
-        @all_counts[period][:by_word][word] ||= 0
-        @all_counts[period][:by_word][word] += 1
+        period_counts[:by_word][word] += 1
       }
     }
   end
