@@ -215,42 +215,47 @@ class TweetStats
 
     erb_data.by_dow_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
+      period_counts_by_dow = @all_counts[period][:by_dow]
       erb_data.by_dow_data[period] = 0.upto(6).map { |dow|
-        "['#{DOWNAMES[dow]}', #{@all_counts[period][:by_dow][dow].to_i}, '#{make_tooltip DOWNAMES[dow], @all_counts[period][:by_dow][dow].to_i}', '#{COLORS[dow]}']"
+        "['#{DOWNAMES[dow]}', #{period_counts_by_dow[dow].to_i}, '#{make_tooltip DOWNAMES[dow], period_counts_by_dow[dow].to_i}', '#{COLORS[dow]}']"
       }.join ",\n"
     }
 
     erb_data.by_hour_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
+      period_counts_by_hour = @all_counts[period][:by_hour]
       erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
-        "[#{hour}, #{@all_counts[period][:by_hour][hour].to_i}, '#{make_tooltip "Hour #{hour}", @all_counts[period][:by_hour][hour].to_i}', '#{COLORS[hour % 6]}']"
+        "[#{hour}, #{period_counts_by_hour[hour].to_i}, '#{make_tooltip "Hour #{hour}", period_counts_by_hour[hour].to_i}', '#{COLORS[hour % 6]}']"
       }.join ",\n"
     }
 
     erb_data.by_mention_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
-      erb_data.by_mention_data[period] = @all_counts[period][:by_mention].keys.sort { |a, b|
-        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
+      period_counts_by_mention = @all_counts[period][:by_mention]
+      erb_data.by_mention_data[period] = period_counts_by_mention.keys.sort { |a, b|
+        period_counts_by_mention[b] <=> period_counts_by_mention[a]
       }.first(10).map.with_index { |user, i|
-        "[ '@#{user}', #{@all_counts[period][:by_mention][user]}, '#{COLORS[i % COLORS.size]}' ]"
+        "[ '@#{user}', #{period_counts_by_mention[user]}, '#{COLORS[i % COLORS.size]}' ]"
       }.join ",\n"
     }
 
     erb_data.by_source_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
-      erb_data.by_source_data[period] = @all_counts[period][:by_source].keys.sort { |a, b|
-        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
+      period_counts_by_source = @all_counts[period][:by_source]
+      erb_data.by_source_data[period] = period_counts_by_source.keys.sort { |a, b|
+        period_counts_by_source[b] <=> period_counts_by_source[a]
       }.first(10).map.with_index { |source, i|
-        "[ '#{source}', #{@all_counts[period][:by_source][source]}, '#{COLORS[i % COLORS.size]}' ]"
+        "[ '#{source}', #{period_counts_by_source[source]}, '#{COLORS[i % COLORS.size]}' ]"
       }.join ",\n"
     }
 
     erb_data.by_words_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
-      erb_data.by_words_data[period] = @all_counts[period][:by_word].keys.sort { |a, b|
-        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
+      period_counts_by_word = @all_counts[period][:by_word]
+      erb_data.by_words_data[period] = period_counts_by_word.keys.sort { |a, b|
+        period_counts_by_word[b] <=> period_counts_by_word[a]
       }.first(100).map { |word|
-        "{text: \"#{word}\", weight: #{@all_counts[period][:by_word][word]} }"
+        "{text: \"#{word}\", weight: #{period_counts_by_word[word]} }"
       }.join ",\n"
     }
 
