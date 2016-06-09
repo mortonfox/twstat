@@ -15,7 +15,7 @@ class TweetStats
   COUNT_DEFS = {
     alltime: { title: 'all time', days: nil, },
     last30: { title: 'last 30 days', days: 30, },
-  }
+  }.freeze
 
   MENTION_REGEX = /\B@([A-Za-z0-9_]+)/
   STRIP_A_TAG = %r{<a[^>]*>(.*)</a>}
@@ -32,13 +32,13 @@ class TweetStats
     than first water been call who oil its now
     find long down day did get come made may part
     http com net org www https
-  )
+  ).freeze
 
   COLORS = %w(
     #673AB7 #3F51B5 #2196F3
     #009688 #4CAF50 #FF5722
     #E91E63
-  )
+  ).freeze
 
   attr_reader :row_count
 
@@ -147,7 +147,7 @@ class TweetStats
     puts '=' * str.size
   end
 
-  DOWNAMES = %w( Sun Mon Tue Wed Thu Fri Sat )
+  DOWNAMES = %w( Sun Mon Tue Wed Thu Fri Sat ).freeze
 
   def report
     report_title 'Tweets by Month'
@@ -171,29 +171,29 @@ class TweetStats
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top mentions (#{periodinfo[:title]})"
-      @all_counts[period][:by_mention].keys.sort { |a, b|
-        @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a]
-      }.first(10).each { |user|
-        puts "@#{user}: #{@all_counts[period][:by_mention][user]}"
-      }
+      @all_counts[period][:by_mention]
+        .keys
+        .sort { |a, b| @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a] }
+        .first(10)
+        .each { |user| puts "@#{user}: #{@all_counts[period][:by_mention][user]}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top clients (#{periodinfo[:title]})"
-      @all_counts[period][:by_source].keys.sort { |a, b|
-        @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a]
-      }.first(10).each { |source|
-        puts "#{source}: #{@all_counts[period][:by_source][source]}"
-      }
+      @all_counts[period][:by_source]
+        .keys
+        .sort { |a, b| @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a] }
+        .first(10)
+        .each { |source| puts "#{source}: #{@all_counts[period][:by_source][source]}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top words (#{periodinfo[:title]})"
-      @all_counts[period][:by_word].keys.sort { |a, b|
-        @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a]
-      }.first(20).each { |word|
-        puts "#{word}: #{@all_counts[period][:by_word][word]}"
-      }
+      @all_counts[period][:by_word]
+        .keys
+        .sort { |a, b| @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a] }
+        .first(20)
+        .each { |word| puts "#{word}: #{@all_counts[period][:by_word][word]}" }
     }
   end
 
@@ -232,31 +232,39 @@ class TweetStats
     erb_data.by_mention_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       period_counts_by_mention = @all_counts[period][:by_mention]
-      erb_data.by_mention_data[period] = period_counts_by_mention.keys.sort { |a, b|
-        period_counts_by_mention[b] <=> period_counts_by_mention[a]
-      }.first(10).map.with_index { |user, i|
-        "[ '@#{user}', #{period_counts_by_mention[user]}, '#{COLORS[i % COLORS.size]}' ]"
-      }.join ",\n"
+      erb_data.by_mention_data[period] =
+        period_counts_by_mention
+        .keys
+        .sort { |a, b| period_counts_by_mention[b] <=> period_counts_by_mention[a] }
+        .first(10)
+        .map
+        .with_index { |user, i| "[ '@#{user}', #{period_counts_by_mention[user]}, '#{COLORS[i % COLORS.size]}' ]" }
+        .join ",\n"
     }
 
     erb_data.by_source_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       period_counts_by_source = @all_counts[period][:by_source]
-      erb_data.by_source_data[period] = period_counts_by_source.keys.sort { |a, b|
-        period_counts_by_source[b] <=> period_counts_by_source[a]
-      }.first(10).map.with_index { |source, i|
-        "[ '#{source}', #{period_counts_by_source[source]}, '#{COLORS[i % COLORS.size]}' ]"
-      }.join ",\n"
+      erb_data.by_source_data[period] =
+        period_counts_by_source
+        .keys
+        .sort { |a, b| period_counts_by_source[b] <=> period_counts_by_source[a] }
+        .first(10)
+        .map
+        .with_index { |source, i| "[ '#{source}', #{period_counts_by_source[source]}, '#{COLORS[i % COLORS.size]}' ]" }
+        .join ",\n"
     }
 
     erb_data.by_words_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
       period_counts_by_word = @all_counts[period][:by_word]
-      erb_data.by_words_data[period] = period_counts_by_word.keys.sort { |a, b|
-        period_counts_by_word[b] <=> period_counts_by_word[a]
-      }.first(100).map { |word|
-        "{text: \"#{word}\", weight: #{period_counts_by_word[word]} }"
-      }.join ",\n"
+      erb_data.by_words_data[period] =
+        period_counts_by_word
+        .keys
+        .sort { |a, b| period_counts_by_word[b] <=> period_counts_by_word[a] }
+        .first(100)
+        .map { |word| "{text: \"#{word}\", weight: #{period_counts_by_word[word]} }" }
+        .join ",\n"
     }
 
     erb_data.subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
