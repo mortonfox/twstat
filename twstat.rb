@@ -151,7 +151,7 @@ class TweetStats
 
   def report
     report_title 'Tweets by Month'
-    @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }.each { |mon|
+    @count_by_month.keys.sort_by(&:first).each { |mon|
       puts "#{mon[0]}: #{@count_by_month[mon]}"
     }
 
@@ -173,7 +173,8 @@ class TweetStats
       report_title "Top mentions (#{periodinfo[:title]})"
       @all_counts[period][:by_mention]
         .keys
-        .sort { |a, b| @all_counts[period][:by_mention][b] <=> @all_counts[period][:by_mention][a] }
+        .sort_by { |a| @all_counts[period][:by_mention][a] }
+        .reverse
         .first(10)
         .each { |user| puts "@#{user}: #{@all_counts[period][:by_mention][user]}" }
     }
@@ -182,7 +183,8 @@ class TweetStats
       report_title "Top clients (#{periodinfo[:title]})"
       @all_counts[period][:by_source]
         .keys
-        .sort { |a, b| @all_counts[period][:by_source][b] <=> @all_counts[period][:by_source][a] }
+        .sort_by { |a| @all_counts[period][:by_source][a] }
+        .reverse
         .first(10)
         .each { |source| puts "#{source}: #{@all_counts[period][:by_source][source]}" }
     }
@@ -191,7 +193,8 @@ class TweetStats
       report_title "Top words (#{periodinfo[:title]})"
       @all_counts[period][:by_word]
         .keys
-        .sort { |a, b| @all_counts[period][:by_word][b] <=> @all_counts[period][:by_word][a] }
+        .sort_by { |a| @all_counts[period][:by_word][a] }
+        .reverse
         .first(20)
         .each { |word| puts "#{word}: #{@all_counts[period][:by_word][word]}" }
     }
