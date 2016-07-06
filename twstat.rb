@@ -172,31 +172,25 @@ class TweetStats
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top mentions (#{periodinfo[:title]})"
       @all_counts[period][:by_mention]
-        .keys
-        .sort_by { |a| @all_counts[period][:by_mention][a] }
-        .reverse
+        .sort_by { |_user, count| -count }
         .first(10)
-        .each { |user| puts "@#{user}: #{@all_counts[period][:by_mention][user]}" }
+        .each { |user, count| puts "@#{user}: #{count}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top clients (#{periodinfo[:title]})"
       @all_counts[period][:by_source]
-        .keys
-        .sort_by { |a| @all_counts[period][:by_source][a] }
-        .reverse
+        .sort_by { |_source, count| -count }
         .first(10)
-        .each { |source| puts "#{source}: #{@all_counts[period][:by_source][source]}" }
+        .each { |source, count| puts "#{source}: #{count}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Top words (#{periodinfo[:title]})"
       @all_counts[period][:by_word]
-        .keys
-        .sort_by { |a| @all_counts[period][:by_word][a] }
-        .reverse
+        .sort_by { |_word, count| -count }
         .first(20)
-        .each { |word| puts "#{word}: #{@all_counts[period][:by_word][word]}" }
+        .each { |word, count| puts "#{word}: #{count}" }
     }
   end
 
@@ -337,6 +331,7 @@ output-file:
 
   puts "\nFinished processing."
   twstat.report_html outfile
+  # twstat.report
 end
 
 main
