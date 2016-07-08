@@ -201,12 +201,16 @@ class TweetStats
   def report_html outfname
     erb_data = OpenStruct.new
 
-    months = @count_by_month.keys.sort { |a, b| a[0] <=> b[0] }
-    erb_data.by_month_data = months.map.with_index { |mon, i|
-      "[new Date(#{mon[1]}, #{mon[2] - 1}), #{@count_by_month[mon]}, '#{make_tooltip mon[0], @count_by_month[mon]}', '#{COLORS[i % 6]}']"
-    }.join ",\n"
-    first_mon = Date.civil(months.first[1], months.first[2], 15) << 1
-    last_mon = Date.civil(months.last[1], months.last[2], 15)
+    month_counts = @count_by_month.sort_by { |month, _count| month[0] }
+    erb_data.by_month_data =
+      month_counts
+      .map
+      .with_index { |(mon, count), i| "[new Date(#{mon[1]}, #{mon[2] - 1}), #{count}, '#{make_tooltip mon[0], count}', '#{COLORS[i % 6]}']" }
+      .join ",\n"
+    first_month_rec = month_counts.first.first
+    first_mon = Date.civil(first_month_rec[1], first_month_rec[2], 15) << 1
+    last_month_rec = month_counts.last.first
+    last_mon = Date.civil(last_month_rec[1], last_month_rec[2], 15)
     erb_data.by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
     erb_data.by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
 
