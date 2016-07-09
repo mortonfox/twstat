@@ -151,9 +151,9 @@ class TweetStats
 
   def report
     report_title 'Tweets by Month'
-    @count_by_month.keys.sort_by(&:first).each { |mon|
-      puts "#{mon[0]}: #{@count_by_month[mon]}"
-    }
+    @count_by_month
+      .sort_by { |month, _count| month.first }
+      .each { |month, count| puts "#{month.first}: #{count}" }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Tweets by Day of Week (#{periodinfo[:title]})"
