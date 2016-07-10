@@ -64,6 +64,8 @@ class TweetStats
     @row_count = 0
     @newest_tstamp = nil
     @oldest_tstamp = nil
+
+    @mon_key = ['', -1, -1]
   end
 
   PROGRESS_INTERVAL = 2500
@@ -103,8 +105,8 @@ class TweetStats
     # This assumes that tweets.csv is ordered from newest to oldest.
     @oldest_tstamp = tstamp
 
-    mon_key = [format('%04d-%02d', tstamp.year, tstamp.mon), tstamp.year, tstamp.mon]
-    @count_by_month[mon_key] += 1
+    @mon_key = [format('%04d-%02d', tstamp.year, tstamp.mon), tstamp.year, tstamp.mon] if tstamp.mon != @mon_key[2]
+    @count_by_month[@mon_key] += 1
 
     mentions = tweet_str.scan(MENTION_REGEX).map { |match| match[0].downcase }
     source = source_str.gsub(STRIP_A_TAG, '\1')
