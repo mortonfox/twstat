@@ -9,6 +9,7 @@ require 'date'
 require 'time'
 require 'zip'
 require 'ostruct'
+require 'optparse'
 
 # Process a Twitter Archive file.
 class TweetStats
@@ -293,12 +294,15 @@ def process_file infile, &blk
   end
 end
 
-def main
-  progname = File.basename $PROGRAM_NAME
-  usage = <<-EOM
-Parse a Twitter archive and produce a web page with stats charts.
+def parse_cmdline
+  options = OpenStruct.new output: :html
 
-Usage: #{progname} input-file output-file
+  opts = OptionParser.new
+
+  opts.banner = <<-EOM
+Parses a Twitter archive and produces a web page with stats charts.
+
+Usage: #{$PROGRAM_NAME} [options] input-file output-file
 
 input-file:
     Input file name. This could either be:
@@ -308,19 +312,44 @@ input-file:
 
 output-file:
     This is the name of the HTML file to which to write the result.
-  EOM
+    (Not currently used for text reports.)
 
-  if ARGV.size < 2
-    warn usage
-    exit 2
+Options:
+  EOM
+  opts.on('-t', '--text', 'Output a text report') { options.output = :text }
+  opts.on('-H', '--html', 'Output a HTML report (default)') { options.output = :html }
+
+  opts.on('-h', '-?', '--help', 'Show this message') {
+    puts opts
+    exit
+  }
+
+  begin
+    opts.parse! ARGV
+  rescue => err
+    warn "Error parsing command line: #{err}"
+    warn opts
+    exit 1
   end
 
-  infile, outfile = ARGV
+  if ARGV.size < 2
+    warn "Both infile and outfile arguments are needed"
+    warn opts
+    exit 1
+  end
+
+  options.infile, options.outfile = ARGV
+
+  options
+end
+
+def main
+  options = parse_cmdline
 
   twstat = TweetStats.new
 
   begin
-    process_file(infile) { |row|
+    process_file(options.infile) { |row|
       twstat.process_row row
     }
   rescue => err
@@ -330,8 +359,12 @@ output-file:
   end
 
   puts "\nFinished processing."
-  twstat.report_html outfile
-  # twstat.report
+
+  if options.output == :html
+    twstat.report_html options.outfile
+  else
+    twstat.report
+  end
 end
 
 main
