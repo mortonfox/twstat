@@ -66,7 +66,7 @@ class TweetStats
     @newest_tstamp = nil
     @oldest_tstamp = nil
 
-    @mon_key = ['', -1, -1]
+    @mon_key = OpenStruct.new(datestr: '', year: -1, mon: -1)
   end
 
   PROGRESS_INTERVAL = 2500
@@ -106,7 +106,7 @@ class TweetStats
     # This assumes that tweets.csv is ordered from newest to oldest.
     @oldest_tstamp = tstamp
 
-    @mon_key = [format('%04d-%02d', tstamp.year, tstamp.mon), tstamp.year, tstamp.mon] if tstamp.mon != @mon_key[2]
+    @mon_key = OpenStruct.new(datestr: format('%04d-%02d', tstamp.year, tstamp.mon), year: tstamp.year, mon: tstamp.mon) if tstamp.mon != @mon_key.mon
     @count_by_month[@mon_key] += 1
 
     mentions = tweet_str.scan(MENTION_REGEX).map { |match| match[0].downcase }
@@ -155,8 +155,8 @@ class TweetStats
   def report
     report_title 'Tweets by Month'
     @count_by_month
-      .sort_by { |month, _count| month.first }
-      .each { |month, count| puts "#{month.first}: #{count}" }
+      .sort_by { |month, _count| month.datestr }
+      .each { |month, count| puts "#{month.datestr}: #{count}" }
 
     COUNT_DEFS.each { |period, periodinfo|
       report_title "Tweets by Day of Week (#{periodinfo[:title]})"
@@ -204,16 +204,16 @@ class TweetStats
   def report_html outfname
     erb_data = OpenStruct.new
 
-    month_counts = @count_by_month.sort_by { |month, _count| month[0] }
+    month_counts = @count_by_month.sort_by { |month, _count| month.datestr }
     erb_data.by_month_data =
       month_counts
       .map
-      .with_index { |(mon, count), i| "[new Date(#{mon[1]}, #{mon[2] - 1}), #{count}, '#{make_tooltip mon[0], count}', '#{COLORS[i % 6]}']" }
+      .with_index { |(mon, count), i| "[new Date(#{mon.year}, #{mon.mon - 1}), #{count}, '#{make_tooltip mon.datestr, count}', '#{COLORS[i % 6]}']" }
       .join ",\n"
     first_month_rec = month_counts.first.first
-    first_mon = Date.civil(first_month_rec[1], first_month_rec[2], 15) << 1
+    first_mon = Date.civil(first_month_rec.year, first_month_rec.mon, 15) << 1
     last_month_rec = month_counts.last.first
-    last_mon = Date.civil(last_month_rec[1], last_month_rec[2], 15)
+    last_mon = Date.civil(last_month_rec.year, last_month_rec.mon, 15)
     erb_data.by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
     erb_data.by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
 
