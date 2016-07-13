@@ -144,56 +144,56 @@ class TweetStats
     }
   end
 
-  def report_title str
-    puts
-    puts str
-    puts '=' * str.size
-  end
-
   DOWNAMES = %w( Sun Mon Tue Wed Thu Fri Sat ).freeze
 
-  def report
-    report_title 'Tweets by Month'
+  def report outf
+    report_title = lambda { |str|
+      outf.puts
+      outf.puts str
+      outf.puts '=' * str.size
+    }
+
+    report_title.call 'Tweets by Month'
     @count_by_month
       .sort_by { |month, _count| month.datestr }
-      .each { |month, count| puts "#{month.datestr}: #{count}" }
+      .each { |month, count| outf.puts "#{month.datestr}: #{count}" }
 
     COUNT_DEFS.each { |period, periodinfo|
-      report_title "Tweets by Day of Week (#{periodinfo[:title]})"
+      report_title.call "Tweets by Day of Week (#{periodinfo[:title]})"
       0.upto(6) { |dow|
-        puts "#{DOWNAMES[dow]}: #{@all_counts[period][:by_dow][dow]}"
+        outf.puts "#{DOWNAMES[dow]}: #{@all_counts[period][:by_dow][dow]}"
       }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
-      report_title "Tweets by Hour (#{periodinfo[:title]})"
+      report_title.call "Tweets by Hour (#{periodinfo[:title]})"
       0.upto(23) { |hour|
-        puts "#{hour}: #{@all_counts[period][:by_hour][hour]}"
+        outf.puts "#{hour}: #{@all_counts[period][:by_hour][hour]}"
       }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
-      report_title "Top mentions (#{periodinfo[:title]})"
+      report_title.call "Top mentions (#{periodinfo[:title]})"
       @all_counts[period][:by_mention]
         .sort_by { |_user, count| -count }
         .first(10)
-        .each { |user, count| puts "@#{user}: #{count}" }
+        .each { |user, count| outf.puts "@#{user}: #{count}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
-      report_title "Top clients (#{periodinfo[:title]})"
+      report_title.call "Top clients (#{periodinfo[:title]})"
       @all_counts[period][:by_source]
         .sort_by { |_source, count| -count }
         .first(10)
-        .each { |source, count| puts "#{source}: #{count}" }
+        .each { |source, count| outf.puts "#{source}: #{count}" }
     }
 
     COUNT_DEFS.each { |period, periodinfo|
-      report_title "Top words (#{periodinfo[:title]})"
+      report_title.call "Top words (#{periodinfo[:title]})"
       @all_counts[period][:by_word]
         .sort_by { |_word, count| -count }
         .first(20)
-        .each { |word, count| puts "#{word}: #{count}" }
+        .each { |word, count| outf.puts "#{word}: #{count}" }
     }
   end
 
@@ -201,7 +201,7 @@ class TweetStats
     "<div class=\"tooltip\"><strong>#{category}</strong><br />#{count} tweets</div>"
   end
 
-  def report_html outfname
+  def report_html outf
     erb_data = OpenStruct.new
 
     month_counts = @count_by_month.sort_by { |month, _count| month.datestr }
@@ -273,9 +273,7 @@ class TweetStats
     }.join("\n")
 
     template = ERB.new File.new("#{File.dirname(__FILE__)}/twstat.html.erb").read
-    File.open(outfname, 'w') { |f|
-      f.puts template.result erb_data.instance_eval { binding }
-    }
+    outf.puts template.result erb_data.instance_eval { binding }
   end
 end
 
@@ -333,7 +331,7 @@ Options:
   end
 
   if ARGV.size < 2
-    warn "Both infile and outfile arguments are needed"
+    warn 'Both infile and outfile arguments are needed'
     warn opts
     exit 1
   end
@@ -360,11 +358,13 @@ def main
 
   puts "\nFinished processing."
 
-  if options.output == :html
-    twstat.report_html options.outfile
-  else
-    twstat.report
-  end
+  File.open(options.outfile, 'w') { |outf|
+    if options.output == :html
+      twstat.report_html outf
+    else
+      twstat.report outf
+    end
+  }
 end
 
 main
