@@ -217,21 +217,25 @@ class TweetStats
     erb_data.by_month_min = [first_mon.year, first_mon.mon - 1, first_mon.day].join ','
     erb_data.by_month_max = [last_mon.year, last_mon.mon - 1, last_mon.day].join ','
 
-    erb_data.by_dow_data = {}
-    COUNT_DEFS.each { |period, _periodinfo|
-      period_counts_by_dow = @all_counts[period][:by_dow]
-      erb_data.by_dow_data[period] = 0.upto(6).map { |dow|
-        "['#{DOWNAMES[dow]}', #{period_counts_by_dow[dow].to_i}, '#{make_tooltip DOWNAMES[dow], period_counts_by_dow[dow].to_i}', '#{COLORS[dow]}']"
-      }.join ",\n"
-    }
+    erb_data.by_dow_data = Hash[
+      COUNT_DEFS.map { |period, _periodinfo|
+        period_counts_by_dow = @all_counts[period][:by_dow]
+        [
+          period,
+          0.upto(6).map { |dow| "['#{DOWNAMES[dow]}', #{period_counts_by_dow[dow].to_i}, '#{make_tooltip DOWNAMES[dow], period_counts_by_dow[dow].to_i}', '#{COLORS[dow]}']" }.join(",\n")
+        ]
+      }
+    ]
 
-    erb_data.by_hour_data = {}
-    COUNT_DEFS.each { |period, _periodinfo|
-      period_counts_by_hour = @all_counts[period][:by_hour]
-      erb_data.by_hour_data[period] = 0.upto(23).map { |hour|
-        "[#{hour}, #{period_counts_by_hour[hour].to_i}, '#{make_tooltip "Hour #{hour}", period_counts_by_hour[hour].to_i}', '#{COLORS[hour % 6]}']"
-      }.join ",\n"
-    }
+    erb_data.by_hour_data = Hash[
+      COUNT_DEFS.map { |period, _periodinfo|
+        period_counts_by_hour = @all_counts[period][:by_hour]
+        [
+          period,
+          0.upto(23).map { |hour| "[#{hour}, #{period_counts_by_hour[hour].to_i}, '#{make_tooltip "Hour #{hour}", period_counts_by_hour[hour].to_i}', '#{COLORS[hour % 6]}']" }.join(",\n")
+        ]
+      }
+    ]
 
     erb_data.by_mention_data = {}
     COUNT_DEFS.each { |period, _periodinfo|
