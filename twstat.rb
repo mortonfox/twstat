@@ -265,15 +265,18 @@ class TweetStats
       }
     ]
 
-    erb_data.by_words_data = {}
-    COUNT_DEFS.each { |period, _periodinfo|
-      erb_data.by_words_data[period] =
-        @all_counts[period][:by_word]
-        .sort_by { |_word, count| -count }
-        .first(100)
-        .map { |word, count| "{text: \"#{word}\", weight: #{count} }" }
-        .join ",\n"
-    }
+    erb_data.by_words_data = Hash[
+      COUNT_DEFS.map { |period, _periodinfo|
+        [
+          period,
+          @all_counts[period][:by_word]
+          .sort_by { |_word, count| -count }
+          .first(100)
+          .map { |word, count| "{text: \"#{word}\", weight: #{count} }" }
+          .join(",\n")
+        ]
+      }
+    ]
 
     erb_data.subtitle = "from #{@oldest_tstamp.strftime '%Y-%m-%d'} to #{@newest_tstamp.strftime '%Y-%m-%d'}"
 
