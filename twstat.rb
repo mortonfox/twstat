@@ -205,11 +205,13 @@ class TweetStats
     erb_data = OpenStruct.new
 
     month_counts = @count_by_month.sort_by { |month, _count| month.datestr }
+
     erb_data.by_month_data =
       month_counts
-      .map
-      .with_index { |(mon, count), i| "[new Date(#{mon.year}, #{mon.mon - 1}), #{count}, '#{make_tooltip mon.datestr, count}', '#{COLORS[i % 6]}']" }
-      .join ",\n"
+        .map
+        .with_index { |(mon, count), i| "[new Date(#{mon.year}, #{mon.mon - 1}), #{count}, '#{make_tooltip mon.datestr, count}', '#{COLORS[i % 6]}']" }
+        .join ",\n"
+
     first_month_rec = month_counts.first.first
     first_mon = Date.civil(first_month_rec.year, first_month_rec.mon, 15) << 1
     last_month_rec = month_counts.last.first
@@ -242,11 +244,11 @@ class TweetStats
         [
           period,
           @all_counts[period][:by_mention]
-          .sort_by { |_user, count| -count }
-          .first(10)
-          .map
-          .with_index { |(user, count), i| "[ '@#{user}', #{count}, '#{COLORS[i % COLORS.size]}' ]" }
-          .join(",\n")
+            .sort_by { |_user, count| -count }
+            .first(10)
+            .map
+            .with_index { |(user, count), i| "[ '@#{user}', #{count}, '#{COLORS[i % COLORS.size]}' ]" }
+            .join(",\n")
         ]
       }
     ]
@@ -256,11 +258,11 @@ class TweetStats
         [
           period,
           @all_counts[period][:by_source]
-          .sort_by { |_source, count| -count }
-          .first(10)
-          .map
-          .with_index { |(source, count), i| "[ '#{source}', #{count}, '#{COLORS[i % COLORS.size]}' ]" }
-          .join(",\n")
+            .sort_by { |_source, count| -count }
+            .first(10)
+            .map
+            .with_index { |(source, count), i| "[ '#{source}', #{count}, '#{COLORS[i % COLORS.size]}' ]" }
+            .join(",\n")
         ]
       }
     ]
@@ -270,10 +272,10 @@ class TweetStats
         [
           period,
           @all_counts[period][:by_word]
-          .sort_by { |_word, count| -count }
-          .first(100)
-          .map { |word, count| "{text: \"#{word}\", weight: #{count} }" }
-          .join(",\n")
+            .sort_by { |_word, count| -count }
+            .first(100)
+            .map { |word, count| "{text: \"#{word}\", weight: #{count} }" }
+            .join(",\n")
         ]
       }
     ]
