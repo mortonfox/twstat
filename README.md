@@ -41,9 +41,8 @@ directly on tweets.csv:
 
     ruby twstat.rb tweets.csv out.html
 
-## Sample
+See a [sample output page](https://mortonfox.github.io/twstat/out.html).
 
-You can see a sample charts page here: <http://mortonfox.github.io/twstat/twstat-sample.html>
-
-Note: The Tweets by Hour chart uses the UTC time zone since that's how Twitter
-stores timestamps in the Twitter archive.
+Note: All timestamps in the Twitter archive are in UTC. For the Tweets by Hour
+chart, twstat uses the system configured timezone to convert those timestamps
+to local time.

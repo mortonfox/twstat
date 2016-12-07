@@ -73,7 +73,7 @@ class TweetStats
 
   # Archive entries before this point all have 00:00:00 as the time, so don't
   # include them in the by-hour chart.
-  ZERO_TIME_CUTOFF = Time.new(2010, 11, 4, 21)
+  ZERO_TIME_CUTOFF = Time.gm(2010, 11, 4, 21).localtime
 
   def process_row row
     @row_count += 1
@@ -84,7 +84,7 @@ class TweetStats
     tstamp_str = row['timestamp']
     source_str = row['source']
     tweet_str = row['text']
-    tstamp = Time.parse tstamp_str
+    tstamp = Time.parse(tstamp_str).localtime
 
     if @row_count % PROGRESS_INTERVAL == 0
       print "Processing row #{@row_count} (#{tstamp.strftime '%Y-%m-%d'}) ...\r"
